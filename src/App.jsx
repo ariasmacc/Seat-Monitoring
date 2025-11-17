@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import SettingsPage from './pages/SettingsPage/SettingsPage.jsx'; 
 import './App.css'; // Gagamitin natin 'to para sa styling
 
-const API_URL = 'https://spinachlike-amada-nonpositivistic.ngrok-free.dev/status';
+const API_URL = 'https://twelve-taxes-marry.loca.lt/status';
 // --- Ating Bagong Home Page ---
 function LiveStatusPage() {
   const [seats, setSeats] = useState([]); // Dito i-store ang [ {id: 1, status: 'Available', ...}, ... ]
