@@ -5,9 +5,8 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import SettingsPage from './pages/SettingsPage/SettingsPage.jsx'; 
 import './App.css'; // Gagamitin natin 'to para sa styling
 
-// URL ng ating *bagong* Python server
-const API_URL = 'http://localhost:5000/status';
-
+// ITO ANG TAMANG ILAGAY
+const API_URL = 'https://spinachlike-amada-nonpositivistic.ngrok-free.app/status';
 // --- Ating Bagong Home Page ---
 function LiveStatusPage() {
   const [seats, setSeats] = useState([]); // Dito i-store ang [ {id: 1, status: 'Available', ...}, ... ]
