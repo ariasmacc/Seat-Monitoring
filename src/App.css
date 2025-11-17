@@ -1,0 +1,101 @@
+/* Global styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 20px;
+}
+
+/* --- Live Status Page --- */
+.live-status-page header {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.live-status-page h1 {
+  margin: 0;
+  color: #333;
+}
+
+.live-status-page header p {
+  font-size: 1.2rem;
+  color: #555;
+  margin: 10px 0;
+}
+
+.settings-link {
+  font-size: 0.9rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.settings-link:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  background: #ffebeb;
+  border: 1px solid red;
+  border-radius: 4px;
+}
+
+/* --- Seat Map --- */
+.seat-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.seat-box {
+  width: 150px;
+  height: 120px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+.seat-id {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.seat-status {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.seat-timer {
+  font-size: 0.9rem;
+  text-align: right;
+  opacity: 0.9;
+}
+
+/* Status Colors */
+.seat-box.available {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.seat-box.occupied {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+/* Ito 'yung status bago pindutin ang 'b' */
+.seat-box.waiting {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+}
