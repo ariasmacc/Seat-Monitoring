@@ -1,143 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-// [INAYOS ANG PATH] Tinitiyak na 'SettingPage' (SINGULAR) ang path, base sa file structure mo
-import SettingsPage from './pages/SettingPage/SettingsPage.jsx'; 
-// [INAYOS] Inalis ang './App.css' na nagdudulot ng error, dahil 'index.css' ang global style file ng Vite
-// import './App.css'; 
+// INAYOS ANG IMPORT PATH: Ginawa kong 'SettingsPage' (plural) para tumugma sa
+// folder na pinagawa ko sa'yo para sa bagong project.
+import SettingsPage from './pages/SettingsPage/SettingsPage.jsx'; 
+import './App.css'; // Gagamitin natin 'to para sa styling
 
-// [BAGO] Mga import para sa Firebase
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
-
-// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//
-// [PINAKA-MAHALAGA]
-// Ito na 'yung 'firebaseConfig' na binigay mo. Inilagay ko na.
-const firebaseConfig = {
-  apiKey: "AIzaSyD6zJgWMo_bNpTi5elMgHIaedCmbOHHJ6o",
-  authDomain: "seat-monitoring-project.firebaseapp.com",
-  projectId: "seat-monitoring-project",
-  storageBucket: "seat-monitoring-project.firebasestorage.app",
-  messagingSenderId: "1043241811464",
-  appId: "1:1043241811464:web:482ed069e09c49c9089bbd",
-  measurementId: "G-JY3FD5QF1M"
-};
-//
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-// [BAGO] Simulan ang koneksyon sa Firebase
-let db;
-try {
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-} catch (e) {
-  console.error("Firebase initialization error:", e);
-  console.error("PAKI-CHECK: Nailagay mo na ba ang 'firebaseConfig' sa App.jsx?");
-}
-
-
+const API_URL = 'https://spinachlike-amada-nonpositivistic.ngrok-free.dev/status';
+// --- Ating Bagong Home Page ---
 function LiveStatusPage() {
-  const [seats, setSeats] = useState([]); // Dito i-store ang data
-  const [error, setError] = useState(null);
+  const [seats, setSeats] = useState([]); // Dito i-store ang [ {id: 1, status: 'Available', ...}, ... ]
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!db) { // Kung 'di gumana 'yung init, huwag nang ituloy
-      setError("Error: Hindi ma-initialize ang Firebase. I-check ang 'firebaseConfig' sa code.");
-      return;
-    }
+  useEffect(() => {
+    // Simulan ang timer para mag-fetch
+    const intervalId = setInterval(() => {
+      fetch(API_URL)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          setSeats(data); // I-update ang state sa nakuha nating data
+          setError(null); // Clear ang error kung success
+        })
+        .catch(error => {
+          console.error("Fetch error:", error);
+          setError("Error: Hindi makakonekta sa backend. Siguraduhin na tumatakbo ang main_detector.py.");
+        });
+    }, 1000); // Kumuha ng update bawat 1 segundo
 
-    // [BINAGO] Ito na ang "real-time" listener ng Firebase
-    
-    // 1. Sabihin kung saang "koleksyon" (folder) sa database titingin
-    const seatsCollectionRef = collection(db, "seats");
-    
-    // 2. I-order ang mga upuan by ID
-    const q = query(seatsCollectionRef, orderBy("id"));
+    // Cleanup function: itigil ang timer pag-alis sa page
+    return () => clearInterval(intervalId);
+  }, []); // [] = i-run lang 'to isang beses (pag-load ng page)
 
-    // 3. 'onSnapshot' ay ang "magic"
-    // Ito ay kusang tumatakbo kapag may nagbago sa database
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const seatsData = [];
-      querySnapshot.forEach((doc) => {
-        // 'doc.data()' ay ang laman ng bawat upuan
-        seatsData.push(doc.data());
-      });
-      
-      setSeats(seatsData); // I-update ang state sa nakuha nating data
-      setError(null); // Clear ang error
-    }, (err) => {
-      // Mag-error kung hinarang (e.g., 'Test Mode' ay naka-off)
-      console.error("Firebase fetch error:", err);
-      setError("Error: Hindi makakonekta sa Firebase database. (Naka 'Test Mode' ka ba?)");
-    });
+  // Kalkulahin ang available seats
+  const availableCount = seats.filter(seat => seat.status === 'Available').length;
 
-    // Cleanup function: itigil ang "pakikinig" pag-alis sa page
-    return () => unsubscribe();
-    
-  }, []); // [] = i-run lang 'to isang beses
+  return (
+    <div className="live-status-page">
+      <header>
+        <h1>Seat Occupancy Status</h1>
+        <p>Available Seats: <strong>{availableCount} / {seats.length}</strong></p>
+        <Link to="/settings" className="settings-link">
+          (Admin: Configure Seats)
+        </Link>
+      </header>
+      
+      {error && <p className="error-message">{error}</p>}
+      
+      <div className="seat-map">
+        {seats.map((seat) => {
+          // Kunin ang status at i-calculate ang timer
+          const statusClass = seat.status === 'Occupied' ? 'occupied' : 'available';
+          const durationInSeconds = (new Date().getTime() / 1000) - seat.last_change_time;
+          const durationInMinutes = durationInSeconds / 60;
 
-  // Kalkulahin ang available seats (pareho pa rin)
-  const availableCount = seats.filter(seat => seat.status === 'Available').length;
-
-  return (
-    <div className="live-status-page">
-      <header>
-        <h1>Seat Occupancy Status</h1>
-        <p>Available Seats: <strong>{availableCount} / {seats.length}</strong></p>
-        <Link to="/settings" className="settings-link">
-          (Admin: Configure Seats)
-        </Link>
-      </header>
-      
-      {error && <p className="error-message">{error}</p>}
-      
-      <div className="seat-map">
-        {seats.map((seat) => {
-          // [INAYOS] Siguraduhin na 'seat.status' ay hindi undefined bago ito gamitin
-          const statusClass = seat.status ? seat.status.toLowerCase() : 'waiting';
-          
-          // [BINAGO] Ang 'last_change_time' galing Firebase ay iba ang format
-          let durationInMinutes = 0;
-          let timestamp = seat.last_change_time;
-
-          // Check kung 'SERVER_TIMESTAMP' pa lang ito at 'di pa na-process
-          if (timestamp && timestamp.seconds) {
-             const durationInSeconds = (new Date().getTime() / 1000) - timestamp.seconds;
-             durationInMinutes = durationInSeconds / 60;
-          } else if (seat.last_change_time_local) { 
-             // Fallback sa local time (para sa 'Waiting')
-             const durationInSeconds = (new Date().getTime() / 1000) - seat.last_change_time_local;
-             durationInMinutes = durationInSeconds / 60;
-          }
-
-          return (
-            <div key={seat.id} className={`seat-box ${statusClass}`}>
-              <div className="seat-id">Seat {seat.id}</div>
-              <div className="seat-status">{seat.status || 'Loading...'}</div>
-              <div className="seat-timer">
-                {seat.status !== 'Waiting' && seat.status ? `${durationInMinutes.toFixed(1)} mins` : 'Nag-aantay...'}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+          return (
+            <div key={seat.id} className={`seat-box ${statusClass}`}>
+              <div className="seat-id">Seat {seat.id}</div>
+              <div className="seat-status">{seat.status}</div>
+              <div className="seat-timer">
+                {/* Ipakita lang ang timer kung hindi 'Waiting' */}
+                {seat.status !== 'Waiting' ? `${durationInMinutes.toFixed(1)} mins` : 'Nag-aantay...'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
-// --- Ating Main App (pareho pa rin) ---
+// --- Ating Main App ---
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LiveStatusPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Ang Home Page (/) ay 'yung Live Status na */}
+        <Route path="/" element={<LiveStatusPage />} />
+        {/* Ang /settings ay 'yung tool natin */}
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
+
