@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 // [INAYOS ANG PATH] Tinitiyak na 'SettingPage' (singular) ang path, base sa file structure mo
 import SettingsPage from './pages/SettingPage/SettingsPage.jsx'; 
-import './App.css'; 
+import './App.css'; // Idinagdag pabalik ang CSS import
 
 // [BAGO] Mga import para sa Firebase
 import { initializeApp } from "firebase/app";
