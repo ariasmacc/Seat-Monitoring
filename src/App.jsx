@@ -6,7 +6,7 @@ import SettingsPage from './pages/SettingsPage/SettingsPage.jsx';
 import './App.css'; // Gagamitin natin 'to para sa styling
 
 // ITO ANG TAMANG ILAGAY
-const API_URL = 'https://spinachlike-amada-nonpositivistic.ngrok-free.app/status';
+const API_URL = 'https://spinachlike-amada-nonpositivistic.ngrok-free.dev';
 // --- Ating Bagong Home Page ---
 function LiveStatusPage() {
   const [seats, setSeats] = useState([]); // Dito i-store ang [ {id: 1, status: 'Available', ...}, ... ]
