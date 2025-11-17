@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-// [INAYOS ANG PATH] Tinitiyak na 'SettingPage' (singular) ang path, base sa file structure mo
+// [INAYOS ANG PATH] Tinitiyak na 'SettingPage' (SINGULAR) ang path, base sa file structure mo
 import SettingsPage from './pages/SettingPage/SettingsPage.jsx'; 
-import './App.css'; // Idinagdag pabalik ang CSS import
+// [INAYOS] Inalis ang './App.css' na nagdudulot ng error, dahil 'index.css' ang global style file ng Vite
+// import './App.css'; 
 
 // [BAGO] Mga import para sa Firebase
 import { initializeApp } from "firebase/app";
